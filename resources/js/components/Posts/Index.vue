@@ -1,5 +1,12 @@
 <template>
     <div>
+        <select v-model="category_id" class="form-control col-md-3">
+            <option value="">-- choose category --</option>
+            <option v-for="category in categories"
+                :value="category.id">
+                {{ category.name }}
+            </option>
+        </select>
     <table class="table">
         <thead>
             <tr>
@@ -10,29 +17,46 @@
             </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>Something</td>
-                <td>Longer text</td>
-                <td>2020-01-23</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Something two</td>
-                <td>Longer text</td>
-                <td>2020-01-26</td>
-                <td></td>
-            </tr>
-            <tr>
-                <td>Something three</td>
-                <td>Longer text</td>
-                <td>2020-01-24</td>
+            <tr v-for="post in posts.data">
+                <td>{{ post.title }}</td>
+                <td>{{ post.post_text.substring(0, 50) }}</td>
+                <td>{{ post.created_at }}</td>
                 <td></td>
             </tr>
         </tbody>
     </table>
+
+    <pagination :data="posts" @pagination-change-page="getResults"></pagination>
     </div>
 </template>
 
 <script>
-
+    export default {
+        data() {
+            return {
+                posts: {},
+                categories: {},
+                category_id: ''
+            }
+        },
+        mounted() {
+            axios.get('/api/categories')
+                .then(response => {
+                    this.categories = response.data.data;
+                });
+            this.getResults();
+        },
+        watch: {
+            category_id(value) { this.getResults(); }
+        },
+        methods: {
+            // Our method to GET results from a Laravel endpoint
+            getResults(page = 1) {
+                axios.get('/api/posts?page=' + page + '&category_id=' + this.category_id)
+                    .then(response => {
+                        this.posts = response.data;
+                    });
+            }
+        }
+    }
 </script>
