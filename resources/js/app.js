@@ -2,11 +2,17 @@ require('./bootstrap');
 
 import Vue from 'vue'
 
-Vue.component('posts-index',
-    require('./components/Posts/Index.vue').default)
+import VueRouter from 'vue-router'
+Vue.use(VueRouter)
+import routes from './routes'
+
+import App from './components/App.vue'
+
 
 Vue.component('pagination', require('laravel-vue-pagination'))
 
 const app = new Vue({
-    el: '#app'
+    el: '#app',
+    components: { App },
+    router: new VueRouter(routes)
 });
