@@ -1,5 +1,5 @@
-import PostsIndex from './components/Posts/Index.vue'
-import PostsCreate from './components/Posts/Create.vue'
+import PostsIndex from '../components/Posts/Index.vue'
+import PostsCreate from '../components/Posts/Create.vue'
 
 export default {
     mode: 'history',
