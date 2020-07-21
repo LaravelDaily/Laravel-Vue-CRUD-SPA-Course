@@ -1,5 +1,6 @@
 import PostsIndex from '../components/Posts/Index.vue'
 import PostsCreate from '../components/Posts/Create.vue'
+import PostsEdit from '../components/Posts/Edit.vue'
 
 export default {
     mode: 'history',
@@ -13,6 +14,11 @@ export default {
             path: '/create',
             component: PostsCreate,
             name: 'posts.create'
+        },
+        {
+            path: '/edit/:id',
+            component: PostsEdit,
+            name: 'posts.edit'
         },
     ]
 }
