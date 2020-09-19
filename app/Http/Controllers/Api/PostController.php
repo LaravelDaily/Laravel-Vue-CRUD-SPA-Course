@@ -20,8 +20,19 @@ class PostController extends Controller
         if (!in_array($sortDirection, ['asc', 'desc'])) {
             $sortDirection = 'desc';
         }
-        $posts = Post::when(request('category_id', '') != '', function($query) {
-            $query->where('category_id', request('category_id'));
+
+        $filled = array_filter(request()->only([
+            'category_id', 'title', 'post_text', 'created_at'
+        ]));
+
+        $posts = Post::when(count($filled) > 0, function($query) use($filled) {
+            foreach ($filled as $column => $filled) {
+                if ($column == 'category_id') {
+                    $query->where($column, $filled);
+                } else {
+                    $query->where($column, 'LIKE', '%' . $filled . '%');
+                }
+            }
         })->orderBy($sortField, $sortDirection)->paginate(3);
         return PostResource::collection($posts);
     }
