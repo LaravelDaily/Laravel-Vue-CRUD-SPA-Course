@@ -1,29 +1,32 @@
 <template>
     <div>
-        <select v-model="category_id" class="form-control col-md-3">
-            <option value="">-- choose category --</option>
-            <option v-for="category in categories"
-                :value="category.id">
-                {{ category.name }}
-            </option>
-        </select>
-    <table class="table">
+        <div class="row justify-content-between pb-4">
+            <select v-model="params.category_id" class="form-control col-md-3">
+                <option value="">-- choose category --</option>
+                <option v-for="category in categories"
+                    :value="category.id">
+                    {{ category.name }}
+                </option>
+            </select>
+            <input type="text" class="form-control col-md-3" placeholder="Search (min 4 letters)" v-model="search">
+        </div>
+        <table class="table">
         <thead>
             <tr>
                 <th>
                     <a href="#" @click.prevent="change_sort('title')">Title</a>
-                    <span v-if="this.sort_field == 'title' && this.sort_direction == 'asc'">&uarr;</span>
-                    <span v-if="this.sort_field == 'title' && this.sort_direction == 'desc'">&darr;</span>
+                    <span v-if="this.params.sort_field == 'title' && this.params.sort_direction == 'asc'">&uarr;</span>
+                    <span v-if="this.params.sort_field == 'title' && this.params.sort_direction == 'desc'">&darr;</span>
                 </th>
                 <th>
                     <a href="#" @click.prevent="change_sort('post_text')">Post Text</a>
-                    <span v-if="this.sort_field == 'post_text' && this.sort_direction == 'asc'">&uarr;</span>
-                    <span v-if="this.sort_field == 'post_text' && this.sort_direction == 'desc'">&darr;</span>
+                    <span v-if="this.params.sort_field == 'post_text' && this.params.sort_direction == 'asc'">&uarr;</span>
+                    <span v-if="this.params.sort_field == 'post_text' && this.params.sort_direction == 'desc'">&darr;</span>
                 </th>
                 <th>
                     <a href="#" @click.prevent="change_sort('created_at')">Created Date</a>
-                    <span v-if="this.sort_field == 'created_at' && this.sort_direction == 'asc'">&uarr;</span>
-                    <span v-if="this.sort_field == 'created_at' && this.sort_direction == 'desc'">&darr;</span>
+                    <span v-if="this.params.sort_field == 'created_at' && this.params.sort_direction == 'asc'">&uarr;</span>
+                    <span v-if="this.params.sort_field == 'created_at' && this.params.sort_direction == 'desc'">&darr;</span>
                 </th>
                 <th>Actions</th>
             </tr>
@@ -52,9 +55,12 @@
             return {
                 posts: {},
                 categories: {},
-                category_id: '',
-                sort_field: 'created_at',
-                sort_direction: 'desc',
+                params: {
+                    category_id: '',
+                    sort_field: 'created_at',
+                    sort_direction: 'desc',
+                },
+                search: ''
             }
         },
         mounted() {
@@ -65,24 +71,36 @@
             this.getResults();
         },
         watch: {
-            category_id(value) { this.getResults(); }
+            params: {
+                handler () {
+                    this.getResults();
+                },
+                deep: true
+            },
+            search (val, old) {
+                if (val.length >= 4 || old.length >= 4) {
+                    this.getResults();
+                }
+            }
         },
         methods: {
             change_sort(field) {
-                if (this.sort_field === field) {
-                    this.sort_direction = this.sort_direction === 'asc' ? 'desc' : 'asc';
+                if (this.params.sort_field === field) {
+                    this.params.sort_direction = this.params.sort_direction === 'asc' ? 'desc' : 'asc';
                 } else {
-                    this.sort_field = field;
-                    this.sort_direction = 'asc';
+                    this.params.sort_field = field;
+                    this.params.sort_direction = 'asc';
                 }
-                this.getResults();
             },
             // Our method to GET results from a Laravel endpoint
             getResults(page = 1) {
-                axios.get('/api/posts?page=' + page
-                    + '&category_id=' + this.category_id
-                    + '&sort_field=' + this.sort_field
-                    + '&sort_direction=' + this.sort_direction)
+                axios.get('/api/posts', {
+                    params: {
+                        page,
+                        search: this.search.length >= 4 ? this.search : '',
+                        ...this.params
+                    }
+                })
                     .then(response => {
                         this.posts = response.data;
                     });
