@@ -33,6 +33,14 @@ class PostController extends Controller
                     $query->where($column, 'LIKE', '%' . $filled . '%');
                 }
             }
+        })->when(request('search', '') != '', function($query) {
+            $query->where(function ($q) {
+                $q->where('title', 'LIKE', '%' . request('search') . '%')
+                    ->orWhere('post_text', 'LIKE', '%' . request('search') . '%')
+                    ->orWhere('created_at', 'LIKE', '%' . request('search') . '%');
+            });
+        })->when(request('category_id', '') != '', function($query) {
+            $query->where('category_id', request('category_id'));
         })->orderBy($sortField, $sortDirection)->paginate(3);
         return PostResource::collection($posts);
     }

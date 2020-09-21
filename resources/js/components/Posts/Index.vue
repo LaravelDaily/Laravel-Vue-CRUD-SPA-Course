@@ -1,13 +1,16 @@
 <template>
     <div>
-        <select v-model="params.category_id" class="form-control col-md-3">
-            <option value="">-- choose category --</option>
-            <option v-for="category in categories"
-                :value="category.id">
-                {{ category.name }}
-            </option>
-        </select>
-    <table class="table">
+        <div class="row justify-content-between pb-4">
+            <select v-model="params.category_id" class="form-control col-md-3">
+                <option value="">-- choose category --</option>
+                <option v-for="category in categories"
+                    :value="category.id">
+                    {{ category.name }}
+                </option>
+            </select>
+            <input type="text" class="form-control col-md-3" placeholder="Search (min 4 letters)" v-model="search">
+        </div>
+        <table class="table">
         <thead>
             <tr>
                 <th>
@@ -71,7 +74,8 @@
                     title: '',
                     post_text: '',
                     created_at: ''
-                }
+                },
+                search: ''
             }
         },
         mounted() {
@@ -84,9 +88,14 @@
         watch: {
             params: {
                 handler () {
-                    this.getResults()
+                    this.getResults();
                 },
                 deep: true
+            },
+            search (val, old) {
+                if (val.length >= 4 || old.length >= 4) {
+                    this.getResults();
+                }
             }
         },
         methods: {
@@ -101,11 +110,12 @@
             // Our method to GET results from a Laravel endpoint
             getResults(page = 1) {
                 axios.get('/api/posts', {
-                        params: {
-                            page,
-                            ...this.params,
-                        }
-                    })
+                    params: {
+                        page,
+                        search: this.search.length >= 4 ? this.search : '',
+                        ...this.params
+                    }
+                })
                     .then(response => {
                         this.posts = response.data;
                     });
