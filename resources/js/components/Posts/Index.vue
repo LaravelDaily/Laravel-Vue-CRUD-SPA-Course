@@ -97,7 +97,6 @@
                     this.params.sort_field = field;
                     this.params.sort_direction = 'asc';
                 }
-                this.getResults();
             },
             // Our method to GET results from a Laravel endpoint
             getResults(page = 1) {
