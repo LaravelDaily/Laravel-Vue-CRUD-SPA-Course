@@ -22,26 +22,29 @@ class PostController extends Controller
         }
 
         $filled = array_filter(request()->only([
-            'category_id', 'title', 'post_text', 'created_at'
+            'title',
+            'post_text',
+            'created_at'
         ]));
 
-        $posts = Post::when(count($filled) > 0, function($query) use($filled) {
-            foreach ($filled as $column => $filled) {
+        $posts = Post::when(count($filled) > 0, function ($query) use ($filled) {
+            foreach ($filled as $column => $value) {
                 if ($column == 'category_id') {
-                    $query->where($column, $filled);
+                    $query->where($column, $value);
                 } else {
-                    $query->where($column, 'LIKE', '%' . $filled . '%');
+                    $query->where($column, 'LIKE', '%' . $value . '%');
                 }
             }
-        })->when(request('search', '') != '', function($query) {
+        })->when(request('search', '') != '', function ($query) {
             $query->where(function ($q) {
                 $q->where('title', 'LIKE', '%' . request('search') . '%')
                     ->orWhere('post_text', 'LIKE', '%' . request('search') . '%')
                     ->orWhere('created_at', 'LIKE', '%' . request('search') . '%');
             });
-        })->when(request('category_id', '') != '', function($query) {
+        })->when(request('category_id', '') != '', function ($query) {
             $query->where('category_id', request('category_id'));
         })->orderBy($sortField, $sortDirection)->paginate(3);
+
         return PostResource::collection($posts);
     }
 
