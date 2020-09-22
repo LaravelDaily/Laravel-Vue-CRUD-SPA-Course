@@ -29,11 +29,7 @@ class PostController extends Controller
 
         $posts = Post::when(count($filled) > 0, function ($query) use ($filled) {
             foreach ($filled as $column => $value) {
-                if ($column == 'category_id') {
-                    $query->where($column, $value);
-                } else {
-                    $query->where($column, 'LIKE', '%' . $value . '%');
-                }
+                $query->where($column, 'LIKE', '%' . $value . '%');
             }
         })->when(request('search', '') != '', function ($query) {
             $query->where(function ($q) {
