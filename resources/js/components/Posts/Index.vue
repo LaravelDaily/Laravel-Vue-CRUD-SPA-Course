@@ -30,6 +30,18 @@
                 </th>
                 <th>Actions</th>
             </tr>
+            <tr>
+                <th>
+                    <input type="text" class="form-input w-100" v-model="params.title">
+                </th>
+                <th>
+                    <input type="text" class="form-input w-100" v-model="params.post_text">
+                </th>
+                <th>
+                    <input type="text" class="form-input w-100" v-model="params.created_at">
+                </th>
+                <th></th>
+            </tr>
         </thead>
         <tbody>
             <tr v-for="post in posts.data">
@@ -59,6 +71,9 @@
                     category_id: '',
                     sort_field: 'created_at',
                     sort_direction: 'desc',
+                    title: '',
+                    post_text: '',
+                    created_at: ''
                 },
                 search: ''
             }
